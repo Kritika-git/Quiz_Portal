@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quiz Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .quiz-card {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quiz-img {
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-success, .btn-secondary {
+            width: 200px;
+        }
+
+        .instructions {
+            background: #e9f7ef;
+            border-left: 5px solid #28a745;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <a class="navbar-brand fw-bold" href="#">Quiz Portal</a>
+    <div class="ms-auto">
+
+        <!-- User Login Dropdown -->
+        <div class="dropdown" th:if="${role == 'USER'}">
+            <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" role="button"
+               id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="/img/profile.png" class="rounded-circle me-2" style="height: 32px; width: 32px;">
+                <span>User</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" class="dropdown-item">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Employee Dropdown -->
+        <div class="dropdown" th:if="${role == 'EMPLOYEE'}">
+            <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" role="button"
+               id="empDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="/img/profile.png" class="rounded-circle me-2" style="height: 32px; width: 32px;">
+                <span>Employee</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="empDropdown">
+                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                <li><a class="dropdown-item" th:href="@{/employee/logout}">Logout</a></li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="quiz-card">
+        <!-- Quiz Image -->
+        <img th:src="${quiz.imageUrl != null ? quiz.imageUrl : '/img/default-quiz.jpg'}"
+             class="img-fluid quiz-img" alt="Quiz Banner">
+
+        <!-- Quiz Title -->
+        <h2 th:text="${quiz.title}" class="mb-4 fw-bold text-center text-success">Quiz Title</h2>
+
+        <!-- Alerts -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Quiz Info -->
+        <p><strong>Description:</strong> <span th:text="${quiz.description}">Description</span></p>
+        <p><strong>Start Time:</strong> <span th:text="${#temporals.format(quiz.attemptFrom, 'dd MMM yyyy HH:mm')}">Start</span></p>
+        <p><strong>End Time:</strong> <span th:text="${#temporals.format(quiz.attemptTo, 'dd MMM yyyy HH:mm')}">End</span></p>
+        <p><strong>Duration:</strong> <span th:text="${quiz.durationMinutes}">30</span> minutes</p>
+        <p><strong>Total Questions:</strong> <span th:text="${quiz.numberOfQuestions}">10</span></p>
+        <p><strong>Location:</strong> <span th:text="${quiz.location}">Online</span></p>
+        <p><strong>Marking Scheme:</strong> 
+            <span th:text="'+' + ${quiz.marksPerQuestion} + ' for correct, 0 for wrong'">+1, 0</span>
+        </p>
+
+        <!-- Instructions -->
+        <div class="instructions my-4">
+            <h5>📝 Instructions:</h5>
+            <ul>
+                <li>This quiz is timed. Make sure you're ready before you begin.</li>
+                <li>Questions will be shown one at a time.</li>
+                <li>You cannot pause the quiz once started.</li>
+                <li>Your score will be based on correct answers only.</li>
+            </ul>
+        </div>
+
+        <!-- Action Button -->
+        <div class="text-center mt-4">
+            <div th:if="${canAttempt}">
+                <a th:href="@{'/quiz/' + ${quizId} + '/start'}" class="btn btn-success">Start Quiz</a>
+            </div>
+            <div th:unless="${canAttempt}">
+                <button class="btn btn-secondary" disabled>Take Quiz (Not Available Yet)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

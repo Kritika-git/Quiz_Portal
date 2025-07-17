@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Results</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .quiz-header {
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .quiz-image {
+            max-height: 240px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 0.75rem;
+        }
+
+        .quiz-meta p {
+            margin-bottom: 0.5rem;
+        }
+
+        .results-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .back-btn {
+            display: block;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ✅ Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <a class="navbar-brand fw-bold" href="#">Quiz Portal</a>
+    <div class="ms-auto">
+        <div th:if="${role == 'GUEST'}">
+            <a class="btn btn-outline-light me-2" th:href="@{/auth/user/login}">User Login</a>
+            <a class="btn btn-outline-light" th:href="@{/auth/employee/login}">Employee Login</a>
+        </div>
+
+        <div class="dropdown" th:if="${role == 'USER'}">
+            <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" role="button"
+               id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="/img/profile.png" class="rounded-circle me-2" style="height: 32px; width: 32px;">
+                <span>User</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" class="dropdown-item">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <div class="dropdown" th:if="${role == 'EMPLOYEE'}">
+            <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" role="button"
+               id="empDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="/img/profile.png" class="rounded-circle me-2" style="height: 32px; width: 32px;">
+                <span>Employee</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="empDropdown">
+                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                <li><a class="dropdown-item" th:href="@{/employee/logout}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ✅ Page Content -->
+<div class="container">
+
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+        <h2 th:text="'🏆 Results for Quiz: ' + ${quiz.title}">Quiz Title</h2>
+    </div>
+
+    <!-- Quiz Details: Description Left, Image Right -->
+    <div class="row align-items-start mb-4">
+        <!-- Left: Quiz Info -->
+        <div class="col-md-7 quiz-meta">
+            <p><strong>Description:</strong> <span th:text="${quiz.description}">Sample description</span></p>
+            <p><strong>Start:</strong> <span th:text="${#temporals.format(quiz.attemptFrom, 'dd MMM yyyy HH:mm')}"></span></p>
+            <p><strong>End:</strong> <span th:text="${#temporals.format(quiz.attemptTo, 'dd MMM yyyy HH:mm')}"></span></p>
+            <p><strong>Duration:</strong> <span th:text="${quiz.durationMinutes}">30</span> minutes</p>
+            <p><strong>Total Questions:</strong> <span th:text="${quiz.numberOfQuestions}">10</span></p>
+            <p><strong>Marks Per Question:</strong> <span th:text="${quiz.marksPerQuestion}">1</span></p>
+            <p><strong>Location:</strong> <span th:text="${quiz.location}">Online</span></p>
+        </div>
+
+        <!-- Right: Image -->
+        <div class="col-md-5">
+            <img th:src="${quiz.imageUrl != null ? quiz.imageUrl : '/img/default-quiz.jpg'}"
+                 class="quiz-image img-fluid"
+                 alt="Quiz Image">
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="results-card">
+        <table class="table table-hover table-bordered text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>🏅 Rank</th>
+                    <th>👤 User ID</th>
+                    <th>📊 Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="a, iter : ${attempts}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td th:text="${a.participantId}"></td>
+                    <td th:text="${a.score}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center">
+        <a th:href="@{/}" class="btn btn-outline-secondary back-btn">← Back to Home</a>
+    </div>
+
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

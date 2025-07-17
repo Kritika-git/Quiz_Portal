@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Quiz</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+    <h2 th:text="'Manage Quiz: ' + ${quiz.title}"></h2>
+
+    
+    <form th:action="@{'/admin/edit-quiz-details/' + ${quiz.quizId}}" method="post">
+        <div class="mb-3">
+            <label>Title</label>
+            <input type="text" class="form-control" name="title" th:value="${quiz.title}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea class="form-control" name="description" rows="3" th:text="${quiz.description}"></textarea>
+        </div>
+		<!-- ✅ Image Upload -->
+		<div class="mb-3">
+		    <label for="quizImage">Change Quiz Image</label>
+		    <input type="file" id="quizImage" accept="image/*" class="form-control" onchange="uploadImage(this)">
+		    <input type="hidden" name="imageUrl" id="imageUrl" th:value="${quiz.imageUrl}">
+		    <div class="mt-2">
+		        <img id="imagePreview" th:src="@{${quiz.imageUrl}}" style="max-height: 200px;" class="img-thumbnail" />
+		    </div>
+		    <small class="text-muted" id="uploadStatus"></small>
+		</div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label>Login From</label>
+				<input type="datetime-local" class="form-control" name="loginFrom"
+				       th:value="${#temporals.format(quiz.loginFrom, 'yyyy-MM-dd''T''HH:mm')}" required>
+
+            </div>
+            <div class="col mb-3">
+                <label>Login To</label>
+                <input type="datetime-local" class="form-control" name="loginTo" 
+                       th:value="${#temporals.format(quiz.loginTo, 'yyyy-MM-dd''T''HH:mm')}" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label>Attempt From</label>
+                <input type="datetime-local" class="form-control" name="attemptFrom" 
+                       th:value="${#temporals.format(quiz.attemptFrom, 'yyyy-MM-dd''T''HH:mm')}" required>
+            </div>
+            <div class="col mb-3">
+                <label>Attempt To</label>
+                <input type="datetime-local" class="form-control" name="attemptTo" 
+                       th:value="${#temporals.format(quiz.attemptTo, 'yyyy-MM-dd''T''HH:mm')}" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Type</label>
+            <select name="type" class="form-select" th:value="${quiz.type}">
+                <option value="EMPLOYEE">Employee Only</option>
+                <option value="OPEN">Open to All</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Location</label>
+            <input type="text" class="form-control" name="location" th:value="${quiz.location}">
+        </div>
+
+        <div class="row">
+            <div class="col mb-3">
+                <label>Number of Questions</label>
+                <input type="number" class="form-control" name="numberOfQuestions" th:value="${quiz.numberOfQuestions}" required>
+            </div>
+            <div class="col mb-3">
+                <label>Duration (minutes)</label>
+                <input type="number" class="form-control" name="durationMinutes" th:value="${quiz.durationMinutes}" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update and Next</button>
+    </form>
+	<script>
+	    function uploadImage(input) {
+	        const file = input.files[0];
+	        if (!file) return;
+
+	        document.getElementById("uploadStatus").textContent = "Uploading...";
+	        const formData = new FormData();
+	        formData.append("file", file);
+
+	        fetch("/api/upload-image", {
+	            method: "POST",
+	            body: formData
+	        })
+	        .then(res => {
+	            if (!res.ok) throw new Error("Upload failed");
+	            return res.text();
+	        })
+	        .then(url => {
+	            document.getElementById("imageUrl").value = url;
+	            const preview = document.getElementById("imagePreview");
+	            preview.src = url;
+	            preview.style.display = "block";
+	            document.getElementById("uploadStatus").textContent = "✅ Image uploaded";
+	        })
+	        .catch(err => {
+	            document.getElementById("uploadStatus").textContent = "❌ Upload failed";
+	            console.error(err);
+	        });
+	    }
+	</script>
+
+
+
+  
+   
+</body>
+</html>
