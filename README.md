@@ -55,7 +55,7 @@ A full-stack **Quiz Management System** developed during my internship at **CMPD
 ![Take Quiz](quiz/uploads/take-quiz.png)
 
 ### 🔹 Results Page
-![Results](quiz/uploads/view-results.png)
+![Results](quiz/uploads/view-result.png)
 
 
 ---
