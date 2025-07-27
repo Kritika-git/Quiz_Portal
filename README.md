@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Quiz_Portal
-=======
 # 📚 Quiz Management Portal
 
 A full-stack **Quiz Management System** developed during my internship at **CMPDI, Ranchi**. This platform allows admins to create and manage quizzes for employees or registered users. Participants can take quizzes during specified time windows, and results are published by the admin after evaluation.
@@ -68,4 +65,3 @@ Special thanks to the team at CMPDI, Ranchi for their mentorship and support dur
 
 ## 📜 License
 This project is for educational purposes and not intended for commercial use.
->>>>>>> fee03ba4de6bf0a894f84988b64ae6ebae5697d9
