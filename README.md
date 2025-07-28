@@ -46,16 +46,16 @@ A full-stack **Quiz Management System** developed during my internship at **CMPD
 
 ## 📷 Screenshots
 ### 🔹 User Dashboard View
-![Dashboard](quiz/uploads/home-page.png)
+![Dashboard](uploads/home-page.png)
 
 ### 🔹 Admin Dashboard View
-![Dashboard](quiz/uploads/ADMIN-HOME-FINAL.png)
+![Dashboard](uploads/ADMIN-HOME-FINAL.png)
 
 ### 🔹 Take Quiz Interface
-![Take Quiz](quiz/uploads/take-quiz.png)
+![Take Quiz](uploads/take-quiz.png)
 
 ### 🔹 Results Page
-![Results](quiz/uploads/view-result.png)
+![Results](uploads/view-result.png)
 
 
 ---
