@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Quiz</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+
+
+<body class="container py-4">
+
+<h2>Create a New Quiz</h2>
+
+<form th:action="@{/admin/create-quiz}" method="post" onsubmit="return validateDates()">
+    <div class="mb-3">
+        <label>Title</label>
+        <input type="text" class="form-control" name="title" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea class="form-control" name="description" rows="3"></textarea>
+    </div>
+
+    <!-- ✅ Image Upload & Preview Section -->
+    <div class="mb-3">
+        <label for="quizImage">Upload Quiz Image</label>
+        <input type="file" id="quizImage" accept="image/*" class="form-control" onchange="uploadImage(this)">
+        <input type="hidden" name="imageUrl" id="imageUrl">
+        <div class="mt-2">
+            <img id="imagePreview" style="max-height: 200px; display: none;" class="img-thumbnail" />
+        </div>
+        <small class="text-muted" id="uploadStatus"></small>
+    </div>
+
+    <div class="row">
+        <div class="col mb-3">
+            <label>Login From</label>
+            <input type="datetime-local" class="form-control" name="loginFrom" required>
+        </div>
+        <div class="col mb-3">
+            <label>Login To</label>
+            <input type="datetime-local" class="form-control" name="loginTo" required>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col mb-3">
+            <label>Attempt From</label>
+            <input type="datetime-local" class="form-control" name="attemptFrom" required>
+        </div>
+        <div class="col mb-3">
+            <label>Attempt To</label>
+            <input type="datetime-local" class="form-control" name="attemptTo" required>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label>Type</label>
+        <select name="type" class="form-select">
+            <option value="EMPLOYEE">Employee Only</option>
+            <option value="OPEN">Open to All</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Location</label>
+        <input type="text" class="form-control" name="location">
+    </div>
+
+    <div class="row">
+        <div class="col mb-3">
+            <label>Number of Questions</label>
+            <input type="number" class="form-control" name="numberOfQuestions" id="numberOfQuestions" required min="1">
+        </div>
+        <div class="col mb-3">
+            <label>Duration (minutes)</label>
+            <input type="number" class="form-control" name="durationMinutes" id="durationMinutes" required min="1">
+        </div>
+    </div>
+	<div class="row">
+	    <div class="col mb-3">
+	        <label for="marksPerQuestion">Marks per Question</label>
+	        <input type="number" class="form-control" name="marksPerQuestion" id="marksPerQuestion" required min="1" value="1">
+	    </div>
+	    <div class="col mb-3">
+	        <label for="totalMarks">Total Marks</label>
+	        <input type="number" class="form-control" name="totalMarks" id="totalMarks" >
+	    </div>
+	</div>
+
+    <button type="submit" class="btn btn-primary">Create Quiz</button>
+
+    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+    <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
+</form>
+
+<!-- ✅ JavaScript logic -->
+<script>
+    function uploadImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        document.getElementById("uploadStatus").textContent = "Uploading...";
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/api/upload-image", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Upload failed");
+            return res.text();
+        })
+        .then(url => {
+            document.getElementById("imageUrl").value = url;
+            const preview = document.getElementById("imagePreview");
+            preview.src = url;
+            preview.style.display = "block";
+            document.getElementById("uploadStatus").textContent = "✅ Image uploaded";
+        })
+        .catch(err => {
+            document.getElementById("uploadStatus").textContent = "❌ Upload failed";
+            console.error(err);
+        });
+    }
+
+    window.onload = function () {
+        const now = new Date();
+        const isoNow = now.toISOString().slice(0, 16);
+        document.querySelector('[name="loginFrom"]').min = isoNow;
+        document.querySelector('[name="loginTo"]').min = isoNow;
+        document.querySelector('[name="attemptFrom"]').min = isoNow;
+        document.querySelector('[name="attemptTo"]').min = isoNow;
+    };
+
+    function validateDates() {
+        const loginFrom = new Date(document.querySelector('[name="loginFrom"]').value);
+        const loginTo = new Date(document.querySelector('[name="loginTo"]').value);
+        const attemptFrom = new Date(document.querySelector('[name="attemptFrom"]').value);
+        const attemptTo = new Date(document.querySelector('[name="attemptTo"]').value);
+        const numQuestions = parseInt(document.getElementById('numberOfQuestions').value);
+        const duration = parseInt(document.getElementById('durationMinutes').value);
+
+        if (isNaN(numQuestions) || numQuestions < 1) {
+            alert("❗ Number of questions must be at least 1");
+            return false;
+        }
+        if (isNaN(duration) || duration < 1) {
+            alert("❗ Duration must be at least 1 minute");
+            return false;
+        }
+        if (loginFrom >= loginTo) {
+            alert("❗ Login To must be after Login From");
+            return false;
+        }
+        if (attemptFrom >= attemptTo) {
+            alert("❗ Attempt To must be after Attempt From");
+            return false;
+        }
+        return true;
+    }
+	
+
+	    function validateTotalMarks() {
+	        const numQ = parseInt(document.getElementById('numberOfQuestions').value);
+	        const marksPerQ = parseInt(document.getElementById('marksPerQuestion').value);
+	        const totalMarks = parseInt(document.getElementById('totalMarks').value);
+
+	        if (!isNaN(numQ) && !isNaN(marksPerQ) && !isNaN(totalMarks)) {
+	            if (numQ * marksPerQ !== totalMarks) {
+	                alert("Total marks must equal number of questions × marks per question.");
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+
+	    // Attach to form submit
+	    document.querySelector("form").addEventListener("submit", function (e) {
+	        if (!validateTotalMarks()) {
+	            e.preventDefault(); // block form submission
+	        }
+	    });
+	
+
+
+</script>
+
+</body>
+</html>

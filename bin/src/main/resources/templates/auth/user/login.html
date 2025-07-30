@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Login</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body class="container py-5">
+
+    <h2 class="mb-4">User Login</h2>
+
+    <form th:action="@{/login}" method="post" class="border p-4 rounded shadow-sm">
+        <div class="mb-3">
+            <label for="username" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="username" name="username" required placeholder="Enter email">
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required placeholder="Enter password">
+        </div>
+
+        <button type="submit" class="btn btn-success">Login</button>
+    </form>
+	<div class="mt-3 text-center">
+	        <small>New user? <a th:href="@{/auth/user/register}">Register here</a></small>
+	</div>
+    <div class="mt-3">
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    </div>
+
+</body>
+</html>

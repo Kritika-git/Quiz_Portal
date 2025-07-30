@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Preview Quiz</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+    <h2 th:text="'Preview of Quiz: ' + ${quiz.title}"></h2>
+    <p><strong>Description:</strong> <span th:text="${quiz.description}"></span></p>
+    <p>
+        <strong>Login Time:</strong> <span th:text="${#temporals.format(quiz.loginFrom, 'dd-MM-yyyy HH:mm')}"></span> to 
+        <span th:text="${#temporals.format(quiz.loginTo, 'dd-MM-yyyy HH:mm')}"></span>
+    </p>
+	<p>	<strong>Quiz Image</strong>
+		<img id="imagePreview" th:src="@{${quiz.imageUrl}}" style="max-height: 200px;" class="img-thumbnail" />
+
+	</p>
+    <p>
+        <strong>Attempt Time:</strong> <span th:text="${#temporals.format(quiz.attemptFrom, 'dd-MM-yyyy HH:mm')}"></span> to 
+        <span th:text="${#temporals.format(quiz.attemptTo, 'dd-MM-yyyy HH:mm')}"></span>
+    </p>
+    <p><strong>Type:</strong> <span th:text="${quiz.type}"></span></p>
+    <p><strong>Location:</strong> <span th:text="${quiz.location}"></span></p>
+    <p><strong>Duration:</strong> <span th:text="${quiz.durationMinutes} + ' minutes'"></span></p>
+    <hr>
+
+    <h4>Questions</h4>
+    <div th:each="q, iterStat : ${questions}" class="mb-4">
+        <h5 th:text="'Q' + ${iterStat.index + 1} + '. ' + ${q.text}"></h5>
+
+        <!-- Show media if exists -->
+        <div th:if="${q.mediaUrl}">
+            <img th:if="${#strings.endsWith(q.mediaUrl, '.png') or #strings.endsWith(q.mediaUrl, '.jpg')}" 
+                 th:src="@{${q.mediaUrl}}" class="img-fluid mb-2" style="max-height: 300px;">
+            <video th:if="${#strings.endsWith(q.mediaUrl, '.mp4')}" th:src="@{${q.mediaUrl}}" 
+                   class="w-100" controls style="max-height: 300px;"></video>
+        </div>
+
+		<div th:switch="${q.type}">
+		    <!-- For MCQ -->
+		    <ul th:case='MCQ'>
+		        <li th:each="ans : ${q.answers}" 
+		            th:text="${ans.text}" 
+		            th:classappend="${ans.correct} ? 'fw-bold text-success' : ''">
+		        </li>
+		    </ul>
+
+		    
+
+		    <!-- For TEXT type -->
+		    <div th:case='TEXT' class="text-primary fw-semibold">
+		        Correct Answer:
+		        <span th:each="ans : ${q.answers}" th:text="${ans.text}"></span>
+		    </div>
+
+		    <!-- Default fallback (if needed) -->
+		   
+		</div>
+    </div>
+	<div class="mt-4 d-flex justify-content-between">
+	    
+	    <form method="post" th:action="@{/admin/finalize-quiz}">
+	        <input type="hidden" name="quizId" th:value="${quiz.quizId}">
+			
+	        <button class="btn btn-success">✅ Save & Publish Quiz</button>
+	    </form>
+	</div>
+    <a href="/admin/dashboard" class="btn btn-primary mt-3">Back to Dashboard</a>
+</body>
+</html>

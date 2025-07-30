@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Results:</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+	<h2 th:text="'Results for Quiz: ' + ${quiz.title}"></h2>
+	<span th:text="'Total Marks of this quiz:'+ ${quiz.totalMarks}"></span>
+
+	<table class="table table-bordered">
+	    <thead>
+	        <tr>
+	            <th>Rank</th>
+	            <th>User ID</th>
+	            <th>Score</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	        <tr th:each="a, iter : ${attempts}">
+	            <td th:text="${iter.index + 1}"></td>
+	            <td th:text="${a.participantId}"></td>
+	            <td th:text="${a.score}"></td>
+	        </tr>
+	    </tbody>
+	</table>
+
+	<form method="post" th:action="@{'/admin/publish-results/' + ${quiz.quizId}}" 
+	      th:if="${!quiz.resultPublished}">
+	    <button class="btn btn-primary mt-3">✅ Publish Results</button>
+	</form>
+
+	<a th:href="@{/admin/dashboard}" class="btn btn-secondary mt-3">Back</a>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Questions</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body class="container py-4">
+
+    <h2 class="mb-4">Add Question for Quiz: <span th:text="${quizId}"></span></h2>
+
+    <div class="alert alert-success" th:if="${message}" th:text="${message}"></div>
+
+    <p><strong>Questions Added:</strong> <span th:text="${questionsAdded}"></span></p>
+    <p><strong>Questions Remaining:</strong> <span th:text="${questionsRemaining}"></span></p>
+
+    <div th:if="${isComplete}" class="alert alert-info">
+        All required questions have already been added.
+    </div>
+
+    <form th:if="${!isComplete}" th:action="@{'/admin/add-questions/' + ${quizId}}" method="post">
+        <div class="mb-3">
+            <label for="questionText" class="form-label">Question Text</label>
+            <textarea class="form-control" name="questionText" id="questionText" rows="3" required></textarea>
+        </div>
+
+		<div class="mb-3">
+		     <label for="quizImage">Upload Quiz Image (Optional)</label>
+		     <input type="file" id="quizImage" accept="image/*" class="form-control" onchange="uploadImage(this)">
+		     <input type="hidden" name="imageUrl" id="imageUrl">
+		     <div class="mt-2">
+		         <img id="imagePreview" style="max-height: 200px; display: none;" class="img-thumbnail" />
+		     </div>
+		     <small class="text-muted" id="uploadStatus"></small>
+		 </div>
+
+        <!-- 🔽 Question Type -->
+        <div class="mb-3">
+            <label for="questionType" class="form-label">Question Type</label>
+            <select class="form-select" id="questionType" name="type" onchange="toggleInputFields()" required>
+                <option value="MCQ">MCQ (Single or Multiple Correct)</option>
+                <option value="TEXT">Text Answer</option>
+            </select>
+        </div>
+
+        <!-- 🔽 Options (only for MCQ) -->
+        <div class="mb-3" id="optionsSection">
+            <label class="form-label">Options (select correct ones)</label>
+            <div id="options">
+                <div class="input-group mb-2">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" name="correctOption" value="0">
+                    </div>
+                    <input type="text" class="form-control" name="options" placeholder="Option 1" required>
+                </div>
+                <div class="input-group mb-2">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" name="correctOption" value="1">
+                    </div>
+                    <input type="text" class="form-control" name="options" placeholder="Option 2" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addOptionField()">+ Add Option</button>
+        </div>
+
+        <!-- 🆕 Text Answer Section -->
+        <div class="mb-3" id="textAnswerSection" style="display: none;">
+            <label for="textAnswer" class="form-label">Correct Text Answer</label>
+            <input type="text" class="form-control" name="options" id="textAnswer">
+			<input type="hidden" name="correctOption" value="0" id="hiddenCorrectOption">
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Question</button>
+    </form>
+
+    <a th:href="@{/admin/dashboard}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+	<script>
+			function uploadImage(input) {
+				        const file = input.files[0];
+				        if (!file) return;
+
+				        document.getElementById("uploadStatus").textContent = "Uploading...";
+				        const formData = new FormData();
+				        formData.append("file", file);
+
+				        fetch("/api/upload-image", {
+				            method: "POST",
+				            body: formData
+				        })
+				        .then(res => {
+				            if (!res.ok) throw new Error("Upload failed");
+				            return res.text();
+				        })
+				        .then(url => {
+				            document.getElementById("imageUrl").value = url;
+				            const preview = document.getElementById("imagePreview");
+				            preview.src = url;
+				            preview.style.display = "block";
+				            document.getElementById("uploadStatus").textContent = "✅ Image uploaded";
+				        })
+				        .catch(err => {
+				            document.getElementById("uploadStatus").textContent = "❌ Upload failed";
+				            console.error(err);
+				        });
+				    }
+
+				    window.onload = function () {
+				        const now = new Date();
+				        const isoNow = now.toISOString().slice(0, 16);
+				        document.querySelector('[name="loginFrom"]').min = isoNow;
+				        document.querySelector('[name="loginTo"]').min = isoNow;
+				        document.querySelector('[name="attemptFrom"]').min = isoNow;
+				        document.querySelector('[name="attemptTo"]').min = isoNow;
+	};
+		
+		       function addOptionField() {
+		           const optionsDiv = document.getElementById("options");
+		           const index = optionsDiv.children.length;
+		           const div = document.createElement("div");
+		           div.classList.add("input-group", "mb-2");
+		           div.innerHTML = `
+		               <div class="input-group-text">
+		                   <input class="form-check-input mt-0" type="checkbox" name="correctOption" value="${index}">
+		               </div>
+		               <input type="text" class="form-control" name="options" placeholder="Option ${index + 1}" required>
+		           `;
+		           optionsDiv.appendChild(div);
+		       }
+
+			function toggleInputFields() {
+			    const type = document.getElementById("questionType").value;
+			    const optionsSection = document.getElementById("optionsSection");
+			    const textAnswerSection = document.getElementById("textAnswerSection");
+			    const textAnswerInput = document.getElementById("textAnswer");
+			    const hiddenCorrectOption = document.querySelector("#textAnswerSection input[name='correctOption']");
+
+			    if (type === "TEXT") {
+			        optionsSection.style.display = "none";
+			        textAnswerSection.style.display = "block";
+
+			        // Disable MCQ options
+			        document.querySelectorAll("#options input[name='options']").forEach(input => {
+			            input.required = false;
+			            input.disabled = true;
+			        });
+
+			        // Enable text answer
+			        textAnswerInput.disabled = false;
+			        textAnswerInput.required = true;
+			        hiddenCorrectOption.disabled = false; // ✅ Make sure it's active only for TEXT
+			    } else {
+			        optionsSection.style.display = "block";
+			        textAnswerSection.style.display = "none";
+
+			        // Enable MCQ options
+			        document.querySelectorAll("#options input[name='options']").forEach(input => {
+			            input.required = true;
+			            input.disabled = false;
+			        });
+
+			        // Disable text answer
+			        textAnswerInput.disabled = true;
+			        textAnswerInput.required = false;
+			        hiddenCorrectOption.disabled = true; // ✅ Disable this hidden field
+			    }
+			}
+
+
+			    // Run once on page load in case a default is selected
+			    window.onload = toggleInputFields;
+		   </script>
+		
+	
+</body>
+</html>
