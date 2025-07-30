@@ -1,5 +1,7 @@
 # 📚 Quiz Management Portal
 
+Live Website: [https://quiz-portal-cewe.onrender.com/](https://quiz-portal-cewe.onrender.com/)
+
 A full-stack **Quiz Management System** developed during my internship at **CMPDI, Ranchi**. This platform allows admins to create and manage quizzes for employees or registered users. Participants can take quizzes during specified time windows, and results are published by the admin after evaluation.
 
 ---
